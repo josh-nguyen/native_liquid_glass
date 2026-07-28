@@ -113,12 +113,8 @@ class LiquidGlassConfig {
   /// Shape of the glass effect.
   final LiquidGlassEffectShape shape;
 
-  /// Corner radius for the top corners when [shape] is [LiquidGlassEffectShape.rect].
+  /// Corner radius when [shape] is [LiquidGlassEffectShape.rect].
   final double? cornerRadius;
-
-  /// Corner radius for the bottom corners when [shape] is [LiquidGlassEffectShape.rect].
-  /// If null, falls back to [cornerRadius] so all four corners use the same radius.
-  final double? cornerRadiusBottom;
 
   /// Optional tint color for the glass effect.
   final Color? tint;
@@ -175,7 +171,6 @@ class LiquidGlassConfig {
     this.effect = LiquidGlassEffect.regular,
     this.shape = LiquidGlassEffectShape.rect,
     this.cornerRadius,
-    this.cornerRadiusBottom,
     this.tint,
     this.interactive = false,
     this.glassEffectUnionId,
@@ -195,7 +190,6 @@ class LiquidGlassConfig {
       'effect': effect.name,
       'shape': shape.name,
       'cornerRadius': cornerRadius,
-      'cornerRadiusBottom': cornerRadiusBottom,
       'tint': tint?.toARGB32(),
       'interactive': interactive,
       'glassEffectUnionId': glassEffectUnionId,

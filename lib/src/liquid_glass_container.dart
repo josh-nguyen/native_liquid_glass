@@ -64,7 +64,6 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
   String? _lastEffect;
   String? _lastShape;
   double? _lastCornerRadius;
-  double? _lastCornerRadiusBottom;
   int? _lastTint;
   bool? _lastInteractive;
   String? _lastGlassEffectUnionId;
@@ -109,7 +108,6 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
     final effect = widget.config.effect.name;
     final shape = widget.config.shape.name;
     final cornerRadius = widget.config.cornerRadius;
-    final cornerRadiusBottom = widget.config.cornerRadiusBottom;
     final tint = widget.config.tint?.toARGB32();
     final interactive = widget.config.interactive;
     final unionId = widget.config.glassEffectUnionId;
@@ -122,7 +120,6 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
     if (_lastEffect != effect ||
         _lastShape != shape ||
         _lastCornerRadius != cornerRadius ||
-        _lastCornerRadiusBottom != cornerRadiusBottom ||
         _lastTint != tint ||
         _lastInteractive != interactive ||
         _lastGlassEffectUnionId != unionId ||
@@ -138,7 +135,6 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
       _lastEffect = effect;
       _lastShape = shape;
       _lastCornerRadius = cornerRadius;
-      _lastCornerRadiusBottom = cornerRadiusBottom;
       _lastTint = tint;
       _lastInteractive = interactive;
       _lastGlassEffectUnionId = unionId;
@@ -157,7 +153,6 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
     _lastEffect = widget.config.effect.name;
     _lastShape = widget.config.shape.name;
     _lastCornerRadius = widget.config.cornerRadius;
-    _lastCornerRadiusBottom = widget.config.cornerRadiusBottom;
     _lastTint = widget.config.tint?.toARGB32();
     _lastInteractive = widget.config.interactive;
     _lastGlassEffectUnionId = widget.config.glassEffectUnionId;

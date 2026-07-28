@@ -8,7 +8,6 @@ final class LiquidGlassContainerViewModel: ObservableObject {
   @Published var effect: String = "regular"
   @Published var shape: String = "rect"
   @Published var cornerRadius: CGFloat? = nil
-  @Published var cornerRadiusBottom: CGFloat? = nil
   @Published var tint: UIColor? = nil
   @Published var interactive: Bool = false
   @Published var glassEffectUnionId: String? = nil
@@ -64,7 +63,6 @@ final class LiquidGlassContainerViewModel: ObservableObject {
       self.effect = (args?["effect"] as? String) ?? "regular"
       self.shape = (args?["shape"] as? String) ?? "rect"
       self.cornerRadius = (args?["cornerRadius"] as? NSNumber).map { CGFloat($0.doubleValue) }
-      self.cornerRadiusBottom = (args?["cornerRadiusBottom"] as? NSNumber).map { CGFloat($0.doubleValue) }
       self.interactive = (args?["interactive"] as? Bool) ?? false
       self.tint = Self.decodeColor(from: args?["tint"])
       self.glassEffectUnionId = {
@@ -298,43 +296,16 @@ struct AnimatableCustomPathShape: Shape, Animatable {
 
 struct BuiltInGlassShape: Shape, Animatable {
   var cornerRadius: CGFloat
-  var bottomCornerRadius: CGFloat
 
-  init(cornerRadius: CGFloat, bottomCornerRadius: CGFloat? = nil) {
-    self.cornerRadius = cornerRadius
-    self.bottomCornerRadius = bottomCornerRadius ?? cornerRadius
-  }
-
-  typealias AnimatableData = AnimatablePair<CGFloat, CGFloat>
-  var animatableData: AnimatablePair<CGFloat, CGFloat> {
-    get { AnimatablePair(cornerRadius, bottomCornerRadius) }
-    set {
-      cornerRadius = newValue.first
-      bottomCornerRadius = newValue.second
-    }
+  var animatableData: CGFloat {
+    get { cornerRadius }
+    set { cornerRadius = newValue }
   }
 
   func path(in rect: CGRect) -> SwiftUI.Path {
     let maxR = min(rect.width, rect.height) / 2
-    let topR = min(cornerRadius, maxR)
-    let botR = min(bottomCornerRadius, maxR)
-    if topR == botR {
-      return Path(roundedRect: rect, cornerRadius: topR, style: .continuous)
-    }
-    if #available(iOS 16.0, *) {
-      return UnevenRoundedRectangle(
-        cornerRadii: RectangleCornerRadii(
-          topLeading: topR,
-          bottomLeading: botR,
-          bottomTrailing: botR,
-          topTrailing: topR
-        ),
-        style: .continuous
-      ).path(in: rect)
-    } else {
-      // Fallback: use the average radius on older iOS
-      return Path(roundedRect: rect, cornerRadius: (topR + botR) / 2, style: .continuous)
-    }
+    let r = min(cornerRadius, maxR)
+    return Path(roundedRect: rect, cornerRadius: r, style: .continuous)
   }
 }
 
@@ -381,18 +352,13 @@ struct LiquidGlassContainerSwiftUIView: View {
       }
       .frame(width: geometry.size.width, height: geometry.size.height)
     }
-    // Fill the full platform-view frame including the home-indicator
-    // safe-area zone. Without this, UIKit injects safe-area insets into
-    // the UIHostingController and GeometryReader reports a size ~34pt
-    // shorter than the actual frame, cutting off the glass at the bottom.
-    .ignoresSafeArea()
   }
 
   // MARK: Built-in
 
   @ViewBuilder
   private func builtInGlassView(in size: CGSize) -> some View {
-    let topRadius: CGFloat = {
+    let radius: CGFloat = {
       switch viewModel.shape {
       case "circle", "capsule":
         return min(size.width, size.height) / 2
@@ -400,15 +366,7 @@ struct LiquidGlassContainerSwiftUIView: View {
         return viewModel.cornerRadius ?? 16
       }
     }()
-    let bottomRadius: CGFloat = {
-      switch viewModel.shape {
-      case "circle", "capsule":
-        return min(size.width, size.height) / 2
-      default:
-        return viewModel.cornerRadiusBottom ?? topRadius
-      }
-    }()
-    let shape = BuiltInGlassShape(cornerRadius: topRadius, bottomCornerRadius: bottomRadius)
+    let shape = BuiltInGlassShape(cornerRadius: radius)
     shape
       .fill(Color.clear)
       .allowsHitTesting(false)

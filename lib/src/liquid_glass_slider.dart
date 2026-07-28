@@ -38,12 +38,6 @@ class LiquidGlassSlider extends StatefulWidget {
   /// Called when the slider value changes.
   final ValueChanged<double> onChanged;
 
-  /// Called when the user starts dragging the slider.
-  final ValueChanged<double>? onChangeStart;
-
-  /// Called when the user finishes dragging the slider.
-  final ValueChanged<double>? onChangeEnd;
-
   /// Minimum value.
   final double min;
 
@@ -78,8 +72,6 @@ class LiquidGlassSlider extends StatefulWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.onChangeStart,
-    this.onChangeEnd,
     this.min = 0.0,
     this.max = 1.0,
     this.step,
@@ -98,11 +90,9 @@ class LiquidGlassSlider extends StatefulWidget {
   State<LiquidGlassSlider> createState() => _LiquidGlassSliderState();
 }
 
-class _LiquidGlassSliderState extends State<LiquidGlassSlider>
-    with LiquidGlassRouteSuppression {
-  @override
-  MethodChannel? get suppressionChannel => _nativeChannel;
+class _LiquidGlassSliderState extends State<LiquidGlassSlider> with LiquidGlassRouteSuppression {
   MethodChannel? _nativeChannel;
+  @override MethodChannel? get suppressionChannel => _nativeChannel;
   double? _lastValue;
   double? _lastMin;
   double? _lastMax;
@@ -168,20 +158,13 @@ class _LiquidGlassSliderState extends State<LiquidGlassSlider>
 
   Future<void> _handleNativeMethodCall(MethodCall call) async {
     if (!mounted) return;
-    switch (call.method) {
-      case 'valueChanged':
-        final value = (call.arguments as num).toDouble();
-        // Record the native value before calling onChanged so that the
-        // subsequent didUpdateWidget→_syncPropsToNativeIfNeeded does not
-        // echo the value back unnecessarily.
-        _lastValue = value;
-        widget.onChanged(value);
-      case 'changeStarted':
-        final value = (call.arguments as num).toDouble();
-        widget.onChangeStart?.call(value);
-      case 'changeEnded':
-        final value = (call.arguments as num).toDouble();
-        widget.onChangeEnd?.call(value);
+    if (call.method == 'valueChanged') {
+      final value = (call.arguments as num).toDouble();
+      // Record the native value before calling onChanged so that the
+      // subsequent didUpdateWidget→_syncPropsToNativeIfNeeded does not
+      // echo the value back unnecessarily.
+      _lastValue = value;
+      widget.onChanged(value);
     }
   }
 
@@ -191,7 +174,6 @@ class _LiquidGlassSliderState extends State<LiquidGlassSlider>
     channel.setMethodCallHandler(_handleNativeMethodCall);
     _nativeChannel = channel;
     widget.controller?._channel = channel;
-    syncGlassRouteVisibility();
     _lastValue = widget.value;
     _lastMin = widget.min;
     _lastMax = widget.max;
@@ -201,6 +183,7 @@ class _LiquidGlassSliderState extends State<LiquidGlassSlider>
     _lastThumbColor = widget.thumbColor?.toARGB32();
     _lastTrackColor = widget.trackColor?.toARGB32();
     _lastTrackBgColor = widget.trackBackgroundColor?.toARGB32();
+    syncGlassRouteVisibility();
   }
 
   @override

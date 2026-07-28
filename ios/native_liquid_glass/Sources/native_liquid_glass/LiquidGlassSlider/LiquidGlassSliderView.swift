@@ -77,14 +77,6 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
     vm.onChanged = { [weak self] newValue in
       self?.methodChannel.invokeMethod("valueChanged", arguments: newValue)
     }
-    vm.onEditingChanged = { [weak self] isEditing in
-      guard let self, let vm = self.viewModel as? LiquidGlassSliderViewModel else { return }
-      if isEditing {
-        self.methodChannel.invokeMethod("changeStarted", arguments: vm.value)
-      } else {
-        self.methodChannel.invokeMethod("changeEnded", arguments: vm.value)
-      }
-    }
 
     self.viewModel = vm
 
@@ -130,9 +122,7 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
       uiSlider.maximumTrackTintColor = trackBgColor
     }
 
-    uiSlider.addTarget(self, action: #selector(handleTouchDown), for: .touchDown)
     uiSlider.addTarget(self, action: #selector(handleValueChanged), for: .valueChanged)
-    uiSlider.addTarget(self, action: #selector(handleTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
 
     self.slider = uiSlider
     containerView.addSubview(uiSlider)
@@ -141,12 +131,6 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
       uiSlider.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
       uiSlider.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
     ])
-  }
-
-  @objc
-  private func handleTouchDown() {
-    guard let slider else { return }
-    methodChannel.invokeMethod("changeStarted", arguments: Double(slider.value))
   }
 
   @objc
@@ -161,19 +145,6 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
       slider.value = value
     }
     methodChannel.invokeMethod("valueChanged", arguments: Double(value))
-  }
-
-  @objc
-  private func handleTouchUp() {
-    guard let slider else { return }
-    var value = slider.value
-    if let step, step > 0 {
-      let min = slider.minimumValue
-      let max = slider.maximumValue
-      value = min + ((value - min) / step).rounded() * step
-      value = Swift.min(Swift.max(value, min), max)
-    }
-    methodChannel.invokeMethod("changeEnded", arguments: Double(value))
   }
 
   // MARK: - Method channel

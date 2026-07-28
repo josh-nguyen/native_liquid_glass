@@ -40,16 +40,10 @@ mixin LiquidGlassRouteSuppression<T extends StatefulWidget> on State<T> {
   /// hide or show accordingly. Call this from [onPlatformViewCreated]
   /// as well so the initial state is correct.
   void syncGlassRouteVisibility() {
-    // Always call ModalRoute.of so the _ModalScopeStatus dependency is
-    // registered even before the native channel exists. Without this, the
-    // early-return below prevents the dependency from being registered on the
-    // first didChangeDependencies call, and future route changes (e.g. a queue
-    // or lyrics modal opening on top) never trigger didChangeDependencies.
-    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
-
     final ch = suppressionChannel;
     if (ch == null) return;
 
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
     if (isCurrent != _glassRouteCurrent) {
       _glassRouteCurrent = isCurrent;
       ch.invokeMethod('setSuppressed', {'suppressed': !isCurrent});
