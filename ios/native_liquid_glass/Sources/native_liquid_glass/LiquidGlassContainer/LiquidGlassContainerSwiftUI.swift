@@ -352,6 +352,14 @@ struct LiquidGlassContainerSwiftUIView: View {
       }
       .frame(width: geometry.size.width, height: geometry.size.height)
     }
+    // Without this, UIKit injects safe-area insets into the hosting
+    // controller whenever the native view's frame overlaps the home
+    // indicator zone, and GeometryReader reports a height shrunk by that
+    // inset. The GlassEffectContainer then sizes itself to the shrunk
+    // rect, leaving a glass-less gap at the bottom of the real UIView
+    // frame. Ignoring the safe area here makes geometry.size match the
+    // actual frame so the glass fills all the way to the screen edge.
+    .ignoresSafeArea()
   }
 
   // MARK: Built-in
