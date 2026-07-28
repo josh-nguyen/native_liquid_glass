@@ -55,6 +55,19 @@ final class LiquidGlassSegmentedControlPlatformView: NSObject, FlutterPlatformVi
     return UIColor(red: red, green: green, blue: blue, alpha: alpha)
   }
 
+  /// Pins the control to the Flutter app's theme brightness instead of the
+  /// device/system appearance. `.unspecified` means follow the system.
+  private static func userInterfaceStyle(from args: [String: Any]?) -> UIUserInterfaceStyle {
+    switch args?["brightness"] as? String {
+    case "dark":
+      return .dark
+    case "light":
+      return .light
+    default:
+      return .unspecified
+    }
+  }
+
   // MARK: - SwiftUI path (iOS 26+)
 
   @available(iOS 26.0, *)
@@ -75,6 +88,11 @@ final class LiquidGlassSegmentedControlPlatformView: NSObject, FlutterPlatformVi
     let hc = UIHostingController(rootView: swiftUIView)
     hc.view.backgroundColor = .clear
     hc.view.translatesAutoresizingMaskIntoConstraints = false
+    // Without this, the hosting controller resolves SwiftUI's segmented
+    // Picker against the device's system appearance instead of the
+    // Flutter app's theme, rendering labels in light-mode (near-black)
+    // even when the app is dark-themed.
+    hc.overrideUserInterfaceStyle = Self.userInterfaceStyle(from: args)
 
     containerView.addSubview(hc.view)
     NSLayoutConstraint.activate([
@@ -117,6 +135,7 @@ final class LiquidGlassSegmentedControlPlatformView: NSObject, FlutterPlatformVi
     if let color = Self.decodeColor(from: args?["color"]) {
       sc.selectedSegmentTintColor = color
     }
+    sc.overrideUserInterfaceStyle = Self.userInterfaceStyle(from: args)
 
     sc.addTarget(self, action: #selector(handleValueChanged), for: .valueChanged)
 

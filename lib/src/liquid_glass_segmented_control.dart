@@ -122,8 +122,9 @@ class _LiquidGlassSegmentedControlState extends State<LiquidGlassSegmentedContro
     return <String, Object?>{'labels': widget.labels};
   }
 
-  Map<String, Object?> _buildCreationParams() {
-    return <String, Object?>{..._buildSegmentParams(), 'selectedIndex': widget.selectedIndex, 'enabled': widget.enabled, 'color': widget.color?.toARGB32()};
+  Map<String, Object?> _buildCreationParams(BuildContext context) {
+    final brightness = Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light';
+    return <String, Object?>{..._buildSegmentParams(), 'selectedIndex': widget.selectedIndex, 'enabled': widget.enabled, 'color': widget.color?.toARGB32(), 'brightness': brightness};
   }
 
   @override
@@ -133,7 +134,7 @@ class _LiquidGlassSegmentedControlState extends State<LiquidGlassSegmentedContro
         height: widget.height,
         child: UiKitView(
           viewType: 'liquid-glass-segmented-control-view',
-          creationParams: _buildCreationParams(),
+          creationParams: _buildCreationParams(context),
           creationParamsCodec: const StandardMessageCodec(),
           onPlatformViewCreated: _onPlatformViewCreated,
           gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{Factory<TapGestureRecognizer>(() => TapGestureRecognizer())},
