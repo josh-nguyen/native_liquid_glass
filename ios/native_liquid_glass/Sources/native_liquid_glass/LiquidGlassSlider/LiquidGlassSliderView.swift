@@ -77,6 +77,9 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
     vm.onChanged = { [weak self] newValue in
       self?.methodChannel.invokeMethod("valueChanged", arguments: newValue)
     }
+    vm.onEditingChanged = { [weak self] editing in
+      self?.methodChannel.invokeMethod("editingChanged", arguments: editing)
+    }
 
     self.viewModel = vm
 
@@ -123,6 +126,8 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
     }
 
     uiSlider.addTarget(self, action: #selector(handleValueChanged), for: .valueChanged)
+    uiSlider.addTarget(self, action: #selector(handleEditingDidBegin), for: .editingDidBegin)
+    uiSlider.addTarget(self, action: #selector(handleEditingDidEnd), for: [.editingDidEnd, .editingDidEndOnExit])
 
     self.slider = uiSlider
     containerView.addSubview(uiSlider)
@@ -145,6 +150,16 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
       slider.value = value
     }
     methodChannel.invokeMethod("valueChanged", arguments: Double(value))
+  }
+
+  @objc
+  private func handleEditingDidBegin() {
+    methodChannel.invokeMethod("editingChanged", arguments: true)
+  }
+
+  @objc
+  private func handleEditingDidEnd() {
+    methodChannel.invokeMethod("editingChanged", arguments: false)
   }
 
   // MARK: - Method channel

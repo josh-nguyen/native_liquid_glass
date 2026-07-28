@@ -174,6 +174,14 @@ class _LiquidGlassSliderState extends State<LiquidGlassSlider> with LiquidGlassR
       // echo the value back unnecessarily.
       _lastValue = value;
       widget.onChanged(value);
+    } else if (call.method == 'editingChanged') {
+      final editing = call.arguments as bool;
+      final value = _lastValue ?? widget.value;
+      if (editing) {
+        widget.onChangeStart?.call(value);
+      } else {
+        widget.onChangeEnd?.call(value);
+      }
     }
   }
 
