@@ -37,6 +37,12 @@ class LiquidGlassSlider extends StatefulWidget {
 
   /// Called when the slider value changes.
   final ValueChanged<double> onChanged;
+  /// Called when the user starts dragging the slider.
+  final ValueChanged<double>? onChangeStart;
+
+  /// Called when the user finishes dragging the slider.
+  final ValueChanged<double>? onChangeEnd;
+
 
   /// Minimum value.
   final double min;
@@ -71,6 +77,9 @@ class LiquidGlassSlider extends StatefulWidget {
   const LiquidGlassSlider({
     super.key,
     required this.value,
+    this.onChangeStart,
+    this.onChangeEnd,
+
     required this.onChanged,
     this.min = 0.0,
     this.max = 1.0,
