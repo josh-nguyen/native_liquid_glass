@@ -119,6 +119,11 @@ class LiquidGlassSearchBar extends StatefulWidget {
   /// When null, uses [tint] or the system accent color.
   final Color? cancelButtonColor;
 
+  /// Optional font size for the cancel button text.
+  ///
+  /// When null, uses the platform's default body text size.
+  final double? cancelFontSize;
+
   /// Optional color for the search icon.
   ///
   /// When null, uses [tint] or the system secondary color.
@@ -166,6 +171,7 @@ class LiquidGlassSearchBar extends StatefulWidget {
     this.showCancelButton = true,
     this.cancelText = 'Cancel',
     this.cancelButtonColor,
+    this.cancelFontSize,
     this.iconColor,
     this.borderRadius,
     this.interactive = true,
@@ -321,6 +327,7 @@ class _LiquidGlassSearchBarState extends State<LiquidGlassSearchBar> with Single
       widget.placeholderColor?.toARGB32(),
       textStyleSignature(widget.textStyle),
       widget.cancelButtonColor?.toARGB32(),
+      widget.cancelFontSize,
       widget.iconColor?.toARGB32(),
       widget.borderRadius,
       widget.interactive,
@@ -354,6 +361,7 @@ class _LiquidGlassSearchBarState extends State<LiquidGlassSearchBar> with Single
       'placeholderColor': widget.placeholderColor?.toARGB32(),
       'textStyle': textStylePayload(widget.textStyle),
       if (widget.cancelButtonColor != null) 'cancelButtonColor': widget.cancelButtonColor!.toARGB32(),
+      if (widget.cancelFontSize != null) 'cancelFontSize': widget.cancelFontSize,
       if (widget.iconColor != null) 'iconColor': widget.iconColor!.toARGB32(),
       if (widget.borderRadius != null) 'borderRadius': widget.borderRadius,
       'interactive': widget.interactive,

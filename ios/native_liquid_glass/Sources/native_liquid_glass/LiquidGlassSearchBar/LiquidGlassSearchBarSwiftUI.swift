@@ -14,6 +14,7 @@ class LiquidGlassSearchBarViewModel: ObservableObject {
   @Published var textColor: Color? = nil
   @Published var placeholderColor: Color? = nil
   @Published var cancelButtonColor: Color? = nil
+  @Published var cancelFontSize: CGFloat? = nil
   @Published var iconColor: Color? = nil
   @Published var interactive: Bool = true
   @Published var textFont: Font? = nil
@@ -174,6 +175,7 @@ struct LiquidGlassSearchBarSwiftUI: View {
           }
         }) {
           Text(viewModel.cancelText)
+            .font(viewModel.cancelFontSize.map { .system(size: $0) })
             .foregroundColor(viewModel.cancelButtonColor ?? viewModel.tint ?? .accentColor)
         }
         .transition(.move(edge: .trailing).combined(with: .opacity))

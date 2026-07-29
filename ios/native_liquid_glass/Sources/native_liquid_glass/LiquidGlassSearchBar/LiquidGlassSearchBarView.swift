@@ -102,6 +102,9 @@ final class LiquidGlassSearchBarPlatformView: NSObject, FlutterPlatformView {
     vm.cancelButtonColor = Self.decodeColor(from: args?["cancelButtonColor"]).map {
       Color(uiColor: $0)
     }
+    if let cancelFontSize = (args?["cancelFontSize"] as? NSNumber)?.doubleValue {
+      vm.cancelFontSize = CGFloat(cancelFontSize)
+    }
     vm.iconColor = Self.decodeColor(from: args?["iconColor"]).map { Color(uiColor: $0) }
     if let br = (args?["borderRadius"] as? NSNumber)?.doubleValue, br > 0 {
       vm.borderRadius = CGFloat(br)
