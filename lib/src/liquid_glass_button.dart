@@ -343,8 +343,6 @@ class _LiquidGlassButtonState extends State<LiquidGlassButton> with LiquidGlassR
   double? _nativeWidth;
   double? _nativeHeight;
   int? _lastConfigHash;
-  Size? _cachedEstimatedSize;
-  int? _estimateCacheKey;
   Map<String, Object?>? _cachedCreationParams;
   int? _creationParamsCacheKey;
 
@@ -382,8 +380,6 @@ class _LiquidGlassButtonState extends State<LiquidGlassButton> with LiquidGlassR
         _nativeWidth = null;
         _nativeHeight = null;
         _lastConfigHash = null;
-        _cachedEstimatedSize = null;
-        _estimateCacheKey = null;
         _cachedCreationParams = null;
         _creationParamsCacheKey = null;
       });
@@ -587,66 +583,23 @@ class _LiquidGlassButtonState extends State<LiquidGlassButton> with LiquidGlassR
     } catch (_) {}
   }
 
-  // — Text button size helpers —
+  // — Text button size helper —
 
-  Size _estimateWrapContentSize(BuildContext context) {
-    // Match the native UIButton's label resolution: size/weight/family
-    // from `labelTextStyle` when provided, falling back to the iOS
-    // system default of 17pt / semibold. Using a hardcoded fontSize: 17
-    // here produced visibly wrong estimates on iPad when callers pass a
-    // ScreenUtil-scaled `labelTextStyle`, leaving the button at a stale
-    // size until the async `getIntrinsicSize` round-trip caught up.
-    final style = widget.labelTextStyle;
-    final textDir = Directionality.maybeOf(context) ?? TextDirection.ltr;
-    final hasIcon = widget.icon != null;
-
-    final cacheKey = Object.hash(
-      widget.label,
-      textStyleSignature(style),
-      hasIcon,
-      widget.iconSize,
-      widget.imagePadding,
-      textDir,
-    );
-    final cached = _cachedEstimatedSize;
-    if (_estimateCacheKey == cacheKey && cached != null) {
-      return cached;
-    }
-
-    final resolvedStyle = TextStyle(
-      fontSize: style?.fontSize ?? 17,
-      fontWeight: style?.fontWeight ?? FontWeight.w600,
-      fontFamily: style?.fontFamily,
-      letterSpacing: style?.letterSpacing,
-      height: 1.0,
-    );
-
-    final textPainter = TextPainter(
-      textDirection: textDir,
-      maxLines: 1,
-      text: TextSpan(text: widget.label, style: resolvedStyle),
-    )..layout();
-
-    const horizontalInsets = 32.0;
-    const verticalInsets = 20.0;
-
-    final iconContribution = hasIcon ? widget.iconSize + widget.imagePadding : 0.0;
-
-    final estimatedWidth = math.max(44.0, (horizontalInsets + textPainter.width + iconContribution).ceilToDouble());
-    final estimatedHeight = math.max(32.0, (verticalInsets + textPainter.height).ceilToDouble());
-
-    final size = Size(estimatedWidth, estimatedHeight);
-    _estimateCacheKey = cacheKey;
-    _cachedEstimatedSize = size;
-    return size;
-  }
-
+  /// The button's currently known wrap-content size: the caller's explicit
+  /// [LiquidGlassButton.width]/[LiquidGlassButton.height] where given, else
+  /// whatever native's real `sizeThatFits` measurement last reported.
+  ///
+  /// No Dart-side text measurement happens here — there's nothing to
+  /// estimate. Before native's first reply lands this returns [Size.zero];
+  /// [build] paints nothing visible until a real size is known (see the
+  /// `_resolveNativeSize(context) == Size.zero` check there), so `Size.zero`
+  /// only ever seeds an invisible placeholder platform view, never
+  /// something a user can see or that can disagree with native's own
+  /// layout.
   Size _resolveNativeSize(BuildContext context) {
-    if (widget.width != null && widget.height != null) {
-      return Size(widget.width!, widget.height!);
-    }
-    final estimatedSize = _estimateWrapContentSize(context);
-    return Size(widget.width ?? estimatedSize.width, widget.height ?? estimatedSize.height);
+    final w = widget.width ?? _nativeWidth ?? 0.0;
+    final h = widget.height ?? _nativeHeight ?? 0.0;
+    return Size(w, h);
   }
 
   // — Icon button size helper —
@@ -760,8 +713,10 @@ class _LiquidGlassButtonState extends State<LiquidGlassButton> with LiquidGlassR
         return placeholder;
       }
 
-      final estimated = _resolveNativeSize(context);
-      final nativeSize = Size(widget.width ?? _nativeWidth ?? estimated.width, widget.height ?? _nativeHeight ?? estimated.height);
+      // `Size.zero` here just means native hasn't reported its real size
+      // yet — the (invisible, zero-sized) `UiKitView` below still mounts so
+      // it can measure itself and report back; nothing is guessed.
+      final nativeSize = _resolveNativeSize(context);
 
       Widget textContent = SizedBox(
         width: nativeSize.width,

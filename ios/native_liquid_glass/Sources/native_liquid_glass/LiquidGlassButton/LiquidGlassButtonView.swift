@@ -12,6 +12,20 @@ final class LiquidGlassButtonPlatformView: NSObject, FlutterPlatformView {
   private var viewModel: AnyObject?
   private var hostingController: UIViewController?
 
+  /// Typed accessor for measuring the SwiftUI content's true natural size.
+  ///
+  /// `UIHostingController.sizeThatFits(in:)` measures the hosted SwiftUI
+  /// tree directly, independent of the container view's current frame or
+  /// Auto Layout constraints — unlike `systemLayoutSizeFitting`, which is
+  /// unreliable here because `hc.view` is pinned with *required* edge
+  /// constraints to `containerView` (whatever frame Flutter last gave it),
+  /// so a fitting-size query under that constraint graph just echoes the
+  /// existing frame back instead of measuring the content's real size.
+  @available(iOS 16.0, *)
+  private var typedHostingController: UIHostingController<LiquidGlassButtonRootView>? {
+    hostingController as? UIHostingController<LiquidGlassButtonRootView>
+  }
+
   // UIKit legacy path (iOS < 16)
   private var legacyButton: UIButton?
   private var legacyConfig: LiquidGlassButtonConfig?
@@ -53,11 +67,9 @@ final class LiquidGlassButtonPlatformView: NSObject, FlutterPlatformView {
       switch call.method {
       case "getIntrinsicSize":
         if #available(iOS 16.0, *) {
-          self.hostingController?.view.setNeedsLayout()
-          self.hostingController?.view.layoutIfNeeded()
           let size =
-            self.hostingController?.view.systemLayoutSizeFitting(
-              UIView.layoutFittingCompressedSize)
+            self.typedHostingController?.sizeThatFits(
+              in: CGSize(width: .greatestFiniteMagnitude, height: .greatestFiniteMagnitude))
             ?? CGSize(width: 100, height: 50)
           result(["width": Double(size.width), "height": Double(size.height)])
         } else {
@@ -80,11 +92,9 @@ final class LiquidGlassButtonPlatformView: NSObject, FlutterPlatformView {
               result(nil)
               return
             }
-            self.hostingController?.view.setNeedsLayout()
-            self.hostingController?.view.layoutIfNeeded()
             let size =
-              self.hostingController?.view.systemLayoutSizeFitting(
-                UIView.layoutFittingCompressedSize)
+              self.typedHostingController?.sizeThatFits(
+                in: CGSize(width: .greatestFiniteMagnitude, height: .greatestFiniteMagnitude))
               ?? CGSize(width: 100, height: 50)
             result(["width": Double(size.width), "height": Double(size.height)])
           }

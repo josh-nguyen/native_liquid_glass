@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.15
+
+### Button — fix wrap-content sizing being a Dart-side guess
+
+- `LiquidGlassButton` (text mode, no explicit `width`) used to size itself with a Dart-side `TextPainter` estimate first, then asynchronously replace it with a size reported by native. That native "measurement" was circular: `hc.view` is pinned with required Auto Layout constraints to `containerView`'s frame (whatever Flutter last gave it), so `systemLayoutSizeFitting(.layoutFittingCompressedSize)` mostly echoed the existing frame back rather than measuring the SwiftUI content's true natural size — meaning the Dart estimate and the "corrected" native reply could disagree by a fraction of a pixel, which showed up as a `RenderConstraintsTransformBox overflowed` assertion whenever a prop change (e.g. a selection-driven style change) raced the async reply.
+- Both `getIntrinsicSize` and `updateConfig`'s size measurement now use `UIHostingController.sizeThatFits(in:)`, which measures the hosted SwiftUI tree directly instead of fighting the container's imposed frame constraints — a genuine, non-circular answer.
+- With a real measurement available, the Dart-side `TextPainter` estimate is gone entirely. `LiquidGlassButton` now mounts an invisible (zero-sized) platform view immediately, lets it measure and report its real size, and only then paints — no guessed width ever reaches Flutter's layout tree.
+
 ## 0.2.14
 
 ### Tab bar — fix compilation against pre-iOS 26.1 SDKs
