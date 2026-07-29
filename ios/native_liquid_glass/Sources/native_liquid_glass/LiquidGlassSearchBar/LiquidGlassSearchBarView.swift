@@ -82,10 +82,12 @@ final class LiquidGlassSearchBarPlatformView: NSObject, FlutterPlatformView {
 
     let placeholder = (args?["placeholder"] as? String) ?? "Search"
     let expandable = (args?["expandable"] as? Bool) ?? true
+    let alwaysExpanded = (args?["alwaysExpanded"] as? Bool) ?? false
     let initiallyExpanded = (args?["initiallyExpanded"] as? Bool) ?? false
     let expandedHeight =
       (args?["expandedHeight"] as? NSNumber).map { CGFloat(truncating: $0) } ?? 44.0
     let showCancelButton = (args?["showCancelButton"] as? Bool) ?? true
+    let collapseOnCancel = (args?["collapseOnCancel"] as? Bool) ?? true
     let cancelText = (args?["cancelText"] as? String) ?? "Cancel"
     let tint = Self.decodeColor(from: args?["tint"])
     let textColor = Self.decodeColor(from: args?["textColor"])
@@ -93,7 +95,9 @@ final class LiquidGlassSearchBarPlatformView: NSObject, FlutterPlatformView {
 
     vm.placeholder = placeholder
     vm.expandable = expandable
+    vm.alwaysExpanded = alwaysExpanded
     vm.showCancelButton = showCancelButton
+    vm.collapseOnCancel = collapseOnCancel
     vm.cancelText = cancelText
     vm.expandedHeight = expandedHeight
     vm.tint = tint.map { Color(uiColor: $0) }

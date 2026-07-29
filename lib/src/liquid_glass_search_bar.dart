@@ -90,6 +90,16 @@ class LiquidGlassSearchBar extends StatefulWidget {
   /// Whether the search bar starts expanded.
   final bool initiallyExpanded;
 
+  /// When true, the bar's width is always full and the text field is
+  /// always shown — it never shrinks to the compact icon. The Cancel
+  /// button still only appears once the bar becomes "expanded" (tapped
+  /// into, or programmatically via [LiquidGlassSearchBarController.expand]),
+  /// and hides again on cancel — without the bar itself resizing.
+  ///
+  /// Useful for a dedicated search page: the bar reads as full-width at
+  /// rest, and tapping it reveals Cancel without the bar resizing.
+  final bool alwaysExpanded;
+
   /// Height when expanded.
   final double expandedHeight;
 
@@ -110,6 +120,16 @@ class LiquidGlassSearchBar extends StatefulWidget {
 
   /// Whether to show a cancel button when expanded.
   final bool showCancelButton;
+
+  /// Whether tapping the cancel button shrinks the bar back to its
+  /// compact icon width.
+  ///
+  /// When false, cancel only clears the text and resigns focus — the bar
+  /// stays full-width, [onExpandStateChanged] is not invoked, and
+  /// [expandable] no longer matters after cancel since the bar never
+  /// re-collapses. Useful for a dedicated search page/toolbar where the
+  /// bar should never shrink to an icon.
+  final bool collapseOnCancel;
 
   /// Text displayed on the cancel button.
   final String cancelText;
@@ -163,12 +183,14 @@ class LiquidGlassSearchBar extends StatefulWidget {
     this.onExpandStateChanged,
     this.expandable = true,
     this.initiallyExpanded = false,
+    this.alwaysExpanded = false,
     this.expandedHeight = 44.0,
     this.tint,
     this.textColor,
     this.placeholderColor,
     this.textStyle,
     this.showCancelButton = true,
+    this.collapseOnCancel = true,
     this.cancelText = 'Cancel',
     this.cancelButtonColor,
     this.cancelFontSize,
@@ -319,9 +341,11 @@ class _LiquidGlassSearchBarState extends State<LiquidGlassSearchBar> with Single
       widget.placeholder,
       widget.expandable,
       widget.initiallyExpanded,
+      widget.alwaysExpanded,
       widget.expandedHeight,
       widget.tint?.toARGB32(),
       widget.showCancelButton,
+      widget.collapseOnCancel,
       widget.cancelText,
       widget.textColor?.toARGB32(),
       widget.placeholderColor?.toARGB32(),
@@ -353,9 +377,11 @@ class _LiquidGlassSearchBarState extends State<LiquidGlassSearchBar> with Single
       'placeholder': widget.placeholder,
       'expandable': widget.expandable,
       'initiallyExpanded': widget.initiallyExpanded,
+      'alwaysExpanded': widget.alwaysExpanded,
       'expandedHeight': widget.expandedHeight,
       'tint': widget.tint?.toARGB32(),
       'showCancelButton': widget.showCancelButton,
+      'collapseOnCancel': widget.collapseOnCancel,
       'cancelText': widget.cancelText,
       'textColor': widget.textColor?.toARGB32(),
       'placeholderColor': widget.placeholderColor?.toARGB32(),

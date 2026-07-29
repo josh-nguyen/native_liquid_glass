@@ -7,7 +7,16 @@ import UIKit
 class LiquidGlassSearchBarViewModel: ObservableObject {
   @Published var placeholder: String = "Search"
   @Published var expandable: Bool = true
+  /// When true, the bar's width is always full — never the compact icon
+  /// width — regardless of `isExpanded`. `isExpanded` still gates the
+  /// Cancel button and text field's editing affordance; only the *width*
+  /// stops collapsing.
+  @Published var alwaysExpanded: Bool = false
   @Published var showCancelButton: Bool = true
+  /// Whether tapping Cancel shrinks the bar back to its compact icon
+  /// width. When false, Cancel only clears the text and resigns focus —
+  /// the bar stays full-width.
+  @Published var collapseOnCancel: Bool = true
   @Published var cancelText: String = "Cancel"
   @Published var expandedHeight: CGFloat = 44.0
   @Published var tint: Color? = nil
@@ -111,7 +120,7 @@ struct LiquidGlassSearchBarSwiftUI: View {
           .foregroundColor(viewModel.iconColor ?? viewModel.tint ?? .secondary)
           .matchedGeometryEffect(id: "searchIcon", in: animation)
 
-        if isExpanded {
+        if isExpanded || viewModel.alwaysExpanded {
           // Text field
           TextField(viewModel.placeholder, text: searchText)
             .foregroundColor(viewModel.textColor ?? .primary)
@@ -142,7 +151,7 @@ struct LiquidGlassSearchBarSwiftUI: View {
       }
       .padding(.horizontal, 12)
       .frame(height: viewModel.expandedHeight)
-      .frame(maxWidth: isExpanded ? .infinity : 44)
+      .frame(maxWidth: (isExpanded || viewModel.alwaysExpanded) ? .infinity : 44)
       .glassEffect(
         viewModel.interactive ? Glass.regular.interactive() : Glass.regular, in: resolvedShape
       )
@@ -167,10 +176,12 @@ struct LiquidGlassSearchBarSwiftUI: View {
       if viewModel.showCancelButton && isExpanded {
         Button(action: {
           withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-            viewModel.isExpanded = false
             viewModel.searchText = ""
             isFocused = false
-            viewModel.onExpandStateChanged?(false)
+            if viewModel.collapseOnCancel {
+              viewModel.isExpanded = false
+              viewModel.onExpandStateChanged?(false)
+            }
             viewModel.onCancelTapped?()
           }
         }) {
