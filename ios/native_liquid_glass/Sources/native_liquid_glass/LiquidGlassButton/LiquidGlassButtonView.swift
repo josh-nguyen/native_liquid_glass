@@ -69,7 +69,7 @@ final class LiquidGlassButtonPlatformView: NSObject, FlutterPlatformView {
         if #available(iOS 16.0, *) {
           let size =
             self.typedHostingController?.sizeThatFits(
-              in: CGSize(width: .greatestFiniteMagnitude, height: .greatestFiniteMagnitude))
+              in: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
             ?? CGSize(width: 100, height: 50)
           result(["width": Double(size.width), "height": Double(size.height)])
         } else {
@@ -94,7 +94,7 @@ final class LiquidGlassButtonPlatformView: NSObject, FlutterPlatformView {
             }
             let size =
               self.typedHostingController?.sizeThatFits(
-                in: CGSize(width: .greatestFiniteMagnitude, height: .greatestFiniteMagnitude))
+                in: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
               ?? CGSize(width: 100, height: 50)
             result(["width": Double(size.width), "height": Double(size.height)])
           }
