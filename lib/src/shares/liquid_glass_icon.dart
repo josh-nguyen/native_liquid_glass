@@ -214,13 +214,58 @@ Future<Uint8List?> _loadAssetBytes(String assetPath) async {
   }
 
   try {
-    final byteData = await rootBundle.load(assetPath);
-    final bytes = byteData.buffer.asUint8List();
+    // SVGs are rasterized to PNG here rather than shipped as raw bytes:
+    // native decodes `assetIconPng` via SVGKit (an old, limited SVG
+    // engine) which can silently fail on some valid SVGs (e.g. stroke-only
+    // paths with no fill) and render nothing. Flutter's own SVG renderer
+    // is authoritative, so rasterizing on this side guarantees native only
+    // ever has to decode a plain bitmap.
+    final bytes = assetPath.toLowerCase().endsWith('.svg')
+        ? await _rasterizeSvgAsset(assetPath)
+        : (await rootBundle.load(assetPath)).buffer.asUint8List();
     _assetBytesCache[assetPath] = bytes;
     return bytes;
   } catch (_) {
     _assetBytesCache[assetPath] = null;
     return null;
+  }
+}
+
+/// Rasterizes an SVG asset to PNG bytes at a fixed logical size scaled by
+/// the current device pixel ratio, matching [_encodeIconDataAsPng]'s canvas
+/// sizing so both icon sources produce comparably-resolved bitmaps.
+Future<Uint8List?> _rasterizeSvgAsset(String assetPath) async {
+  const canvasSize = 64.0;
+  final dpr = _currentDevicePixelRatio();
+  final physicalSize = (canvasSize * dpr).round();
+
+  final pictureInfo = await vg.loadPicture(SvgAssetLoader(assetPath), null);
+  try {
+    if (pictureInfo.size.width <= 0 || pictureInfo.size.height <= 0) {
+      return null;
+    }
+    final scale = physicalSize /
+        (pictureInfo.size.width > pictureInfo.size.height
+            ? pictureInfo.size.width
+            : pictureInfo.size.height);
+    final drawWidth = pictureInfo.size.width * scale;
+    final drawHeight = pictureInfo.size.height * scale;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    canvas.translate(
+      (physicalSize - drawWidth) / 2,
+      (physicalSize - drawHeight) / 2,
+    );
+    canvas.scale(scale);
+    canvas.drawPicture(pictureInfo.picture);
+    final scaledPicture = recorder.endRecording();
+
+    final image = await scaledPicture.toImage(physicalSize, physicalSize);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData?.buffer.asUint8List();
+  } finally {
+    pictureInfo.picture.dispose();
   }
 }
 
