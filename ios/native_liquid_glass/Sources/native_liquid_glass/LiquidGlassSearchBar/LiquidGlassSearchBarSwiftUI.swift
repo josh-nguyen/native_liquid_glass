@@ -205,6 +205,17 @@ struct LiquidGlassSearchBarSwiftUI: View {
       if viewModel.isFocused != newValue {
         viewModel.isFocused = newValue
       }
+      // With `alwaysExpanded`, the text field is always on-screen and
+      // tappable, so focusing it natively (tapping directly into it)
+      // never routes through the outer capsule's `onTapGesture` below —
+      // that's the only other place `isExpanded` normally flips true.
+      // Mirror that transition here so Cancel still appears.
+      if newValue && viewModel.alwaysExpanded && !viewModel.isExpanded {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+          viewModel.isExpanded = true
+        }
+        viewModel.onExpandStateChanged?(true)
+      }
     }
   }
 }
