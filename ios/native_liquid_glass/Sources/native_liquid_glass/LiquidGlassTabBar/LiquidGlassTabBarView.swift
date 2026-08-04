@@ -29,6 +29,18 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
   /// Identifier of the trailing action tab, when one is configured.
   private var actionTabIdentifier: String?
 
+  /// True while `configureTabBarController` is still building the bar.
+  ///
+  /// Setting the initial selection (`selectTab(at:)` in
+  /// `configureSelectionAndMode`) programmatically triggers UIKit's
+  /// `UITabBarControllerDelegate` `didSelect`/`didSelectTab` callbacks, same
+  /// as a real tap. Without this guard that synthetic "selection" gets
+  /// forwarded to Flutter as `onTabSelected`, and callers that treat a
+  /// same-index selection as "return to this tab's root" (e.g. GoRouter's
+  /// `goBranch(..., initialLocation: true)`) end up popping whatever route
+  /// was already showing the instant this view is created.
+  private var isConfiguring = true
+
   init(
     config: LiquidGlassTabBarConfig,
     onTabSelected: @escaping (Int) -> Void,
@@ -179,6 +191,8 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
     applyTintColorForSelectedIndex(currentSelectedIndex, tabBar: tabBar)
 
     embedTabBarControllerView()
+
+    isConfiguring = false
   }
 
   /// Creates one child view controller per tab item.
@@ -713,7 +727,7 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
     _ tabBarController: UITabBarController, didSelect viewController: UIViewController
   ) {
     // The UITab construction path is handled by tabBarController(_:didSelectTab:previousTab:).
-    guard !usesTabsAPI else {
+    guard !usesTabsAPI, !isConfiguring else {
       return
     }
 
@@ -744,7 +758,9 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
   func tabBarController(
     _ tabBarController: UITabBarController, didSelectTab selectedTab: UITab, previousTab: UITab?
   ) {
-    guard let index = tabIdentifiers.firstIndex(of: selectedTab.identifier) else {
+    guard !isConfiguring,
+      let index = tabIdentifiers.firstIndex(of: selectedTab.identifier)
+    else {
       return
     }
 
