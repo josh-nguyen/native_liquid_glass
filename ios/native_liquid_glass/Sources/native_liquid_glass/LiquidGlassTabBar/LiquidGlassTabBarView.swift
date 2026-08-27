@@ -142,7 +142,6 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
   /// 3) apply optional appearance customization
   /// 4) embed the tab bar controller's view
   private func configureTabBarController(with config: LiquidGlassTabBarConfig) {
-    tabBarController.delegate = self
     tabBarController.view.backgroundColor = .clear
     tabBarController.view.clipsToBounds = false
     tabBarController.view.isOpaque = false
@@ -164,6 +163,20 @@ final class LiquidGlassNativeTabBarControllerView: UIView, UITabBarControllerDel
       currentIndex: config.currentIndex,
       selectableTabCount: selectableTabCount
     )
+
+    // Attached only after the initial selection above, not before: UIKit
+    // fires the delegate's didSelect/didSelectTab for *programmatic*
+    // selection changes too, not just user taps. Assigning the delegate
+    // before configureSelectionAndMode's `selectTab(at:)` call meant every
+    // (re)creation of this view — e.g. Flutter toggling Liquid Glass mode,
+    // which tears down and rebuilds this platform view — echoed a spurious
+    // "tab selected" event for whatever tab was already active. Flutter-side
+    // code treats a reselect of the active tab as an intentional
+    // reset-to-root gesture, so that echo was silently popping whatever page
+    // was pushed on top. The view isn't attached to a window or interactive
+    // yet at this point, so deferring delegate assignment here can't drop a
+    // real tap.
+    tabBarController.delegate = self
 
     let tabBar = tabBarController.tabBar
     tabBar.clipsToBounds = false
