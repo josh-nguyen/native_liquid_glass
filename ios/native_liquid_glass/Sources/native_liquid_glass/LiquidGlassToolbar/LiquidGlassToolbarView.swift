@@ -79,6 +79,7 @@ final class LiquidGlassToolbarPlatformView: NSObject, FlutterPlatformView {
     let swiftUIView = LiquidGlassToolbarSwiftUIView(viewModel: vm)
     let hc = UIHostingController(rootView: swiftUIView)
     hc.view.backgroundColor = .clear
+    hc.view.maskGlassColdStart()
     hc.view.translatesAutoresizingMaskIntoConstraints = false
     // Make sure the spring scale-up / glass drop shadow render outside
     // the hosting view's laid-out bounds and aren't clipped by UIKit.

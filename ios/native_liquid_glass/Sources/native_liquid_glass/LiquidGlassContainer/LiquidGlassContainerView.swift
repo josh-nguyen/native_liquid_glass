@@ -49,6 +49,7 @@ final class LiquidGlassContainerPlatformView: NSObject, FlutterPlatformView {
 
       let hc = UIHostingController(rootView: AnyView(swiftUIView))
       hc.view.backgroundColor = .clear
+      hc.view.maskGlassColdStart()
       hc.view.translatesAutoresizingMaskIntoConstraints = false
       // The glass material's drop shadow can extend slightly past the
       // shape's bounds; don't clip it at the host view boundary.

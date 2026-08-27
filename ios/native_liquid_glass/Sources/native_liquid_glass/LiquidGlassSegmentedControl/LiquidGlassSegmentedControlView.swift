@@ -87,6 +87,7 @@ final class LiquidGlassSegmentedControlPlatformView: NSObject, FlutterPlatformVi
     let swiftUIView = LiquidGlassSegmentedControlSwiftUIView(viewModel: vm)
     let hc = UIHostingController(rootView: swiftUIView)
     hc.view.backgroundColor = .clear
+    hc.view.maskGlassColdStart()
     hc.view.translatesAutoresizingMaskIntoConstraints = false
     // Without this, the hosting controller resolves SwiftUI's segmented
     // Picker against the device's system appearance instead of the

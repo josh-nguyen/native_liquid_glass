@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.17
+
+### Fix: brief shimmer on the first-ever appearance of any SwiftUI-hosted Glass view
+
+- Every `UIHostingController`-backed Liquid Glass view (`LiquidGlassContainer`, `LiquidGlassButton`, `LiquidGlassButtonGroup`, `LiquidGlassSearchBar`, `LiquidGlassSegmentedControl`, `LiquidGlassSlider`, `LiquidGlassToggle`, `LiquidGlassToolbar`) showed a brief visible shimmer the first time a fresh instance appeared — e.g. the first visit to any page containing one. Revisiting the same page never repeated it, since the same instance stays mounted.
+- Cause: SwiftUI's `Glass.regular`/`.clear` needs a couple of render passes on a brand new `UIHostingController` to settle its live backdrop sampling; until then the material paints a visibly wrong intermediate state. `UIVisualEffectView`/`UIGlassEffect` (the plain UIKit path used by `LiquidGlassSheetSurface`) doesn't have this problem — it's a much older, already-optimized rendering path with no comparable warm-up, which is why sheets built on it never shimmered.
+- Fix: `GlassColdStartMask.swift` adds `UIView.maskGlassColdStart()`, called right after each hosting controller's view is created — hides it (`alpha = 0`) and reveals it 50ms later with no animation, once the material has had time to settle. A fade-in would itself read as a shimmer, just a smoother one; snapping straight to the settled state is what looks like nothing happened.
+
 ## 0.2.16
 
 ### New: `LiquidGlassSheetSurface` — borderless glass for backgrounds

@@ -134,6 +134,7 @@ final class LiquidGlassButtonGroupPlatformView: NSObject, FlutterPlatformView {
     let swiftUIView = LiquidGlassButtonGroupSwiftUI(viewModel: vm)
     let hc = UIHostingController(rootView: swiftUIView)
     hc.view.backgroundColor = .clear
+    hc.view.maskGlassColdStart()
     hc.view.translatesAutoresizingMaskIntoConstraints = false
 
     if #available(iOS 13.0, *) {
