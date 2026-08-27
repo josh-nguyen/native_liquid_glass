@@ -202,6 +202,7 @@ final class LiquidGlassSearchBarPlatformView: NSObject, FlutterPlatformView {
     sb.placeholder = placeholder
     sb.showsCancelButton = showCancelButton
     sb.delegate = self
+    sb.autocorrectionType = .no
 
     if let tint { sb.tintColor = tint }
 

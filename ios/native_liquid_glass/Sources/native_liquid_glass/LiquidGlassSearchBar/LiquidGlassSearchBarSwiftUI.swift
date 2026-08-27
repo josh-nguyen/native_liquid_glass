@@ -127,6 +127,7 @@ struct LiquidGlassSearchBarSwiftUI: View {
             .font(viewModel.textFont)
             .focused($isFocused)
             .submitLabel(.search)
+            .autocorrectionDisabled()
             .onSubmit {
               viewModel.onSubmitted?(viewModel.searchText)
             }
