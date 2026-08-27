@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.16
+
+### New: `LiquidGlassSheetSurface` — borderless glass for backgrounds
+
+- `LiquidGlassContainer` wraps SwiftUI's `Glass.regular`/`.clear` via `.glassEffect(_:in: shape)`, the API for discrete floating objects (buttons, pills, chips). Apple bakes an unconditional specular edge highlight into that API — there's no flag to disable it, because it's what visually marks the element as a glass *object*.
+- Full-screen backgrounds shouldn't look like objects. UIKit's own `UINavigationBar`/`UIToolbar` glass, and a real `UISheetPresentationController`'s backing material, render with no such border.
+- `LiquidGlassSheetSurface` reproduces that borderless "surface" look for arbitrary Flutter content by applying `UIGlassEffect` through a plain `UIVisualEffectView` on the native side (`LiquidGlassSheetSurface/LiquidGlassSheetSurfaceView.swift`) — the same raw material UIKit uses for bars — instead of SwiftUI's decorated object API.
+- Use it for bottom sheets, full-screen panels, and other backgrounds; keep `LiquidGlassContainer` for buttons/pills/chips where the highlight is the expected look.
+- Only `LiquidGlassConfig.effect`, `.cornerRadius`, `.tint`, and `.backgroundColor` apply; `.shape`, `.border`, `.interactive`, and the custom-path/union fields are ignored since they're object-specific.
+
 ## 0.2.15
 
 ### Button — fix wrap-content sizing being a Dart-side guess

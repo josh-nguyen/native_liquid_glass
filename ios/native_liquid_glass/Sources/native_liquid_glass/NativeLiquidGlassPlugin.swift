@@ -7,6 +7,7 @@ public class NativeLiquidGlassPlugin: NSObject, FlutterPlugin {
   private static let buttonViewType = "liquid-glass-button-view"
   private static let iconButtonViewType = "liquid-glass-icon-button-view"
   private static let containerViewType = "liquid-glass-container-view"
+  private static let sheetSurfaceViewType = "liquid-glass-sheet-surface-view"
   private static let buttonGroupViewType = "liquid-glass-button-group-view"
   private static let searchBarViewType = "liquid-glass-search-bar-view"
   private static let toggleViewType = "liquid-glass-toggle-view"
@@ -36,6 +37,9 @@ public class NativeLiquidGlassPlugin: NSObject, FlutterPlugin {
       defaultIconOnly: true
     )
     let containerFactory = LiquidGlassContainerViewFactory(
+      messenger: registrar.messenger()
+    )
+    let sheetSurfaceFactory = LiquidGlassSheetSurfaceViewFactory(
       messenger: registrar.messenger()
     )
     let buttonGroupFactory = LiquidGlassButtonGroupViewFactory(
@@ -71,6 +75,7 @@ public class NativeLiquidGlassPlugin: NSObject, FlutterPlugin {
     registrar.register(buttonFactory, withId: buttonViewType)
     registrar.register(iconButtonFactory, withId: iconButtonViewType)
     registrar.register(containerFactory, withId: containerViewType)
+    registrar.register(sheetSurfaceFactory, withId: sheetSurfaceViewType)
     registrar.register(buttonGroupFactory, withId: buttonGroupViewType)
     registrar.register(searchBarFactory, withId: searchBarViewType)
     registrar.register(toggleFactory, withId: toggleViewType)

@@ -14,6 +14,7 @@ export 'src/liquid_glass_search_bar.dart';
 export 'src/liquid_glass_search_scaffold.dart';
 export 'src/liquid_glass_segmented_control.dart';
 export 'src/liquid_glass_sheet.dart';
+export 'src/liquid_glass_sheet_surface.dart';
 export 'src/liquid_glass_slider.dart';
 export 'src/liquid_glass_stepper.dart';
 export 'src/liquid_glass_tab_bar.dart';
