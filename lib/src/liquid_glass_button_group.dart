@@ -185,6 +185,7 @@ class _LiquidGlassButtonGroupState extends State<LiquidGlassButtonGroup> with Li
   int _hotReloadEpoch = 0;
   int _payloadsGeneration = 0;
   double? _nativeHeight;
+  double? _nativeWidth;
   int? _lastButtonsHash;
   int _iconSignature = 0;
   Map<String, Object?>? _cachedCreationParams;
@@ -369,7 +370,13 @@ class _LiquidGlassButtonGroupState extends State<LiquidGlassButtonGroup> with Li
     try {
       final size = await ch.invokeMethod<Map<Object?, Object?>>('getIntrinsicSize');
       final h = (size?['height'] as num?)?.toDouble();
-      if (mounted && h != null && h > 0) setState(() => _nativeHeight = h);
+      final w = (size?['width'] as num?)?.toDouble();
+      if (mounted && h != null && h > 0 && w != null && w > 0) {
+        setState(() {
+          _nativeHeight = h;
+          _nativeWidth = w;
+        });
+      }
     } catch (_) {}
   }
 
@@ -429,6 +436,7 @@ class _LiquidGlassButtonGroupState extends State<LiquidGlassButtonGroup> with Li
       }
 
       return SizedBox(
+        width: _nativeWidth,
         height: _nativeHeight ?? 56,
         child: UiKitView(
           viewType: 'liquid-glass-button-group-view',
