@@ -10,21 +10,32 @@ struct LiquidGlassButtonGroupItemView: View {
   var namespace: Namespace.ID
 
   var body: some View {
-    Button(action: handlePress) {
-      buttonLabel
-        .padding(resolvedPadding())
-        .frame(width: config.width, height: resolvedFrameHeight())
-        .contentShape(resolvedShape())
-        .glassEffect(resolvedGlass(), in: resolvedShape())
-        .applyLiquidGlassEffectModifiers(
-          unionId: config.glassEffectUnionId,
-          id: config.glassEffectId,
-          namespace: namespace
+    ZStack(alignment: .topTrailing) {
+      Button(action: handlePress) {
+        buttonLabel
+          .padding(resolvedPadding())
+          .frame(width: config.width, height: resolvedFrameHeight())
+          .contentShape(resolvedShape())
+          .glassEffect(resolvedGlass(), in: resolvedShape())
+          .applyLiquidGlassEffectModifiers(
+            unionId: config.glassEffectUnionId,
+            id: config.glassEffectId,
+            namespace: namespace
+          )
+      }
+      .disabled(!config.enabled)
+      .buttonStyle(LiquidGlassNoHighlightButtonStyle())
+      .allowsHitTesting(config.interaction)
+      if config.showBadge {
+        LiquidGlassButtonBadge(
+          text: config.badgeValue,
+          backgroundColor: config.badgeColor.map { Color(uiColor: $0) } ?? .red,
+          textColor: config.badgeTextColor.map { Color(uiColor: $0) } ?? .white,
+          size: config.badgeSize
         )
+        .allowsHitTesting(false)
+      }
     }
-    .disabled(!config.enabled)
-    .buttonStyle(LiquidGlassNoHighlightButtonStyle())
-    .allowsHitTesting(config.interaction)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)
     .accessibilityAddTraits(.isButton)
