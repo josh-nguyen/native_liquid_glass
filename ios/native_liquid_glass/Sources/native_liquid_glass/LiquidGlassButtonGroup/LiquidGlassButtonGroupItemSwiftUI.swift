@@ -10,22 +10,26 @@ struct LiquidGlassButtonGroupItemView: View {
   var namespace: Namespace.ID
 
   var body: some View {
-    ZStack(alignment: .topTrailing) {
-      Button(action: handlePress) {
-        buttonLabel
-          .padding(resolvedPadding())
-          .frame(width: config.width, height: resolvedFrameHeight())
-          .contentShape(resolvedShape())
-          .glassEffect(resolvedGlass(), in: resolvedShape())
-          .applyLiquidGlassEffectModifiers(
-            unionId: config.glassEffectUnionId,
-            id: config.glassEffectId,
-            namespace: namespace
-          )
-      }
-      .disabled(!config.enabled)
-      .buttonStyle(LiquidGlassNoHighlightButtonStyle())
-      .allowsHitTesting(config.interaction)
+    Button(action: handlePress) {
+      buttonLabel
+        .padding(resolvedPadding())
+        .frame(width: config.width, height: resolvedFrameHeight())
+        .contentShape(resolvedShape())
+        .glassEffect(resolvedGlass(), in: resolvedShape())
+        .applyLiquidGlassEffectModifiers(
+          unionId: config.glassEffectUnionId,
+          id: config.glassEffectId,
+          namespace: namespace
+        )
+    }
+    .disabled(!config.enabled)
+    .buttonStyle(LiquidGlassNoHighlightButtonStyle())
+    .allowsHitTesting(config.interaction)
+    // .overlay (not a ZStack sibling) so the badge is guaranteed to paint
+    // after this view's own glassEffect/glassEffectUnion pass — a plain
+    // ZStack sibling was getting composited underneath the fused glass
+    // shape's render pass instead of on top of it.
+    .overlay(alignment: .topTrailing) {
       if config.showBadge {
         LiquidGlassButtonBadge(
           text: config.badgeValue,
