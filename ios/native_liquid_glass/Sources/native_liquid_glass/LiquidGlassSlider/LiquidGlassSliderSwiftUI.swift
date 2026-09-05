@@ -10,6 +10,7 @@ class LiquidGlassSliderViewModel: ObservableObject {
   @Published var step: Double? = nil
   @Published var enabled: Bool = true
   @Published var tintColor: Color? = nil
+  @Published var trackBackgroundColor: Color? = nil
 
   var onChanged: ((Double) -> Void)?
   var onEditingChanged: ((Bool) -> Void)?
@@ -40,6 +41,10 @@ struct LiquidGlassSliderSwiftUIView: View {
       }
     }
     .tint(viewModel.tintColor)
+    // SwiftUI's Slider has no public API for the unfilled track's Liquid Glass
+    // tint (it defaults to a dark system material), so we paint our own
+    // background behind it to match the non-glass fallback slider's track color.
+    .background(viewModel.trackBackgroundColor.map { AnyView(Capsule().fill($0)) })
     .disabled(!viewModel.enabled)
   }
 

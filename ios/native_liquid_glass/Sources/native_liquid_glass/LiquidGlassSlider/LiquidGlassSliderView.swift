@@ -73,6 +73,7 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
     let trackColor = Self.decodeColor(from: args?["trackColor"])
     let color = Self.decodeColor(from: args?["color"])
     vm.tintColor = (trackColor ?? color).map { Color(uiColor: $0) }
+    vm.trackBackgroundColor = Self.decodeColor(from: args?["trackBackgroundColor"]).map { Color(uiColor: $0) }
 
     vm.onChanged = { [weak self] newValue in
       self?.methodChannel.invokeMethod("valueChanged", arguments: newValue)
@@ -252,6 +253,9 @@ final class LiquidGlassSliderPlatformView: NSObject, FlutterPlatformView {
             let color = Self.decodeColor(from: args["color"])
             if let c = trackColor ?? color {
               vm.tintColor = Color(uiColor: c)
+            }
+            if let trackBgColor = Self.decodeColor(from: args["trackBackgroundColor"]) {
+              vm.trackBackgroundColor = Color(uiColor: trackBgColor)
             }
           }
           // UIKit path
